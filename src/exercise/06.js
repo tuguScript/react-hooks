@@ -7,35 +7,32 @@ import {
 } from '../pokemon'
 
 function PokemonInfo({pokemonName}) {
-  const [pokemon, setPokemon] = React.useState(null)
-  const [status, setStatus] = React.useState('idle')
+  const [state, setState] = React.useState({status: 'idle', pokemon: null})
   React.useEffect(() => {
     if (pokemonName === '') {
       return
     }
-    setPokemon(null)
-    setStatus('pending')
+    setState({status: 'pending'})
     fetchPokemon(pokemonName).then(
       pokemonData => {
-        setPokemon(pokemonData)
-        setStatus('resolved')
+        setState({status: 'resolved', pokemon: pokemonData})
       },
       error => {
-        setPokemon(null)
-        setStatus('rejected')
+        setState({status: 'rejected', error})
       },
     )
   }, [pokemonName])
-  if (status === 'idle') {
+  if (state.status === 'idle') {
     return 'Submit a pokemon'
-  } else if (status === 'pending') {
+  } else if (state.status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />
-  } else if (status === 'resolved') {
-    return <PokemonDataView pokemon={pokemon} />
-  } else if (status === 'rejected') {
+  } else if (state.status === 'resolved') {
+    return <PokemonDataView pokemon={state.pokemon} />
+  } else if (state.status === 'rejected') {
     return (
       <div role="alert">
-        There was an error: <pre style={{whiteSpace: 'normal'}}></pre>
+        There was an error:{' '}
+        <pre style={{whiteSpace: 'normal'}}>{state.error.message}</pre>
       </div>
     )
   }
